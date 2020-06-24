@@ -1,0 +1,208 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="../lib/assets/fonts.css">
+    <link rel="stylesheet" type="text/css" href="../lib/assets/animation.css">
+    <meta charset="utf-8"/>
+    <style>
+        * {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body style="margin: 0px; border: 0px; padding: 0px;">
+    <div id="overflow">
+        <div id="body">
+            <div id="login">
+                <h1 id="loginHeader">Viljami</h1>
+                <h2 id="loginHeaderSmall">Customoitava ja paranneltu wilma-sovellus</h2>
+                <p id="desc">Kirjoita Wilma-palvelimesi osite alle ja paina kirjaudu</p>
+                <input id="wilmaPath" type="text" placeholder="https://*.inschool.fi, https://*.wilma.fi">
+                <p id="agreenment"><input id="agree" type="checkbox">Olen lukenut Viljamin <a href="#" id="license">käyttölisenssin</a></p>
+                <button id="loginButton">Kirjaudu</button>
+                <p id="error"></p>
+                <a id="info" href="#">Miten Viljami toimii? Onko Viljami turvallinen? Käsitteleekö Viljami salasanaani?</a>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    //Apply css
+    const _css = require("../bin/convertTheme.js")
+    let documentCss = new _css("../settings/theme.json", "app")
+    documentCss.apply()
+</script>
+<script>
+    const url = require("url")
+    const http = require("http")
+    const puppeteer = require("puppeteer")
+    const request = new (class Request {
+    /**
+     * Perform a simple http get request
+     * @param {""} path 
+     * @param {{}} options 
+     * @returns {Promise} 
+     */
+    async get(path, options) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                console.log("runs")
+                let _url = url.parse(path)
+                let setup = {
+                    host: _url.host,
+                    path: _url.path,
+                    port: _url.port,
+                    method: "GET",
+                    query: _url.query,
+                    body: options.body
+                };
+                console.log(setup)
+                let req = http.request(setup, async res => {
+                    console.log("res")
+                    let bodyBuffer = []
+                    res.on('data', async chunk => {
+                        bodyBuffer.push(chunk);
+                    }).on('end', async () => {
+                        console.log("ended")
+                        let body = Buffer.concat(bodyBuffer);
+                        resolve({
+                            body: body,
+                            headers: JSON.stringify(res.headers),
+                            status: res.statusCode,
+                            message: res.statusMessage
+                        })
+                    })
+                })
+                req.on("error", async error => {
+                    reject(error)
+                })
+                req.end()
+            }
+            catch (error) {
+                reject(error)
+            }
+        })
+    }
+    async post(path, options) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let _url = url.parse(path)
+                let setup = {
+                    host: _url.host,
+                    path: _url.path,
+                    port: _url.port,
+                    method: "POST",
+                    query: _url.query,
+                    options
+                };
+                http.request(setup, async res => {
+                    let bodyBuffer = []
+                    res.on('data', async chunk => {
+                        bodyBuffer.push(chunk);
+                    }).on('end', async () => {
+                        let body = Buffer.concat(bodyBuffer);
+                        resolve({
+                            body: body,
+                            headers: JSON.stringify(res.headers),
+                            status: res.statusCode,
+                            message: res.statusMessage
+                        })
+                    })
+                }).on("error", async error => {
+                    reject(error)
+                });
+            }
+            catch (error) {
+                reject(error)
+            }
+        })
+    }
+})
+
+    //Edit the window configuration
+    let me = require('nw.gui').Window.get()
+    me.resizeTo(900, 600)
+    me.title = "Viljami - Kirjautuminen"
+    me.setResizable(true)
+
+    //Start the server
+    const _server = require("../bin/server.js")
+
+    //Login
+    let login = document.getElementById("loginButton")
+    let read = document.getElementById("agree")
+    let agreed = false
+    let input = document.getElementById("wilmaPath")
+    login.onclick = async function (){
+        document.getElementById("error").innerHTML = ""
+        if(agreed){
+            if(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(input.value)){
+                request.get(input.value, {}).then(async res => {
+                    console.log(res)
+                    if(res.status.toString() == res.toString()){
+                        let cookies = ""
+                        let browser = puppeteer.launch({headless: false, args: ['--app=' + input, '--disable-infobars', '--enable-automation', '--window-size=410,510'], defaultViewport: null}).then(browser => {
+                            browser.on("disconnected", async function(err){
+                                res.status(404).send("Total error.")
+                            })
+                            browser.pages().then(pages => {
+                                let selected = false
+                                pages[0].setViewport({width: 410, height: 510}).then(() => {
+                                    pages[0].on("domcontentloaded", () => {
+                                        pages[0].click("#approve-cookies").then(() => {
+                                            pages[0].evaluate(page => {
+                                                document.getElementsByTagName("body")[0].style.paddingTop = "90px"
+                                                document.getElementsByTagName("body")[0].style.paddingBottom = "0px"
+                                                document.getElementsByClassName("login-box")[0].style.marginTop = "-35px"
+                                                document.getElementsByClassName("login-box")[0].style.width = "380px"
+                                                document.getElementsByClassName("login-box")[0].style.marginleft = "5px"
+                                                document.getElementsByClassName("login-box")[0].style.marginRight = "23px"
+                                            }).then(() => {
+                                                let waited = 0
+                                                setInterval(async function(){
+                                                    if(pages[0].url == App.session.path){
+                                                        clearInterval(this)
+                                                        console.log(page.cookies.toString())
+                                                        cookies = page.cookies
+                                                        browser.close()
+                                                    }
+                                                    if(waited * 10 == "30"){
+                                                        console.log("Timeout")
+                                                        cookies = "FAIL"
+                                                        browser.close()
+                                                    }
+                                                }, 100)
+                                            })
+                                        })
+                                    })
+                                })
+                            })
+                        })   
+                        browser.on("close", async () => {
+                            if(cookies != "FAIL"){
+                                consolle.log("Logged in! " + cookies)
+                            }else {
+                                document.getElementById("error").innerHTML = "Kirjautuminen epäonnistui"
+                            }
+                        })
+                    }else {
+                        document.getElementById("error").innerHTML = "Palvelin ei ole olemassa tai ei vastaa"
+                    }
+                }).catch(async err => {
+                    console.log(err)
+                    document.getElementById("error").innerHTML = "Palvelimeen yhdistäminen ei onnistu"
+                })
+            }else {
+                console.log("test fail")
+                document.getElementById("error").innerHTML = "Palvelinosoite on virheellinen"
+            }
+        }else {
+            document.getElementById("error").innerHTML = "Sinun täytyy hyväksyä lisenssiehdot"
+        }
+    }
+    read.onclick = async function(){
+        if(agreed){
+            agreed = false
+        }else {
+            agreed = true
+        }
+    }
+</script>
