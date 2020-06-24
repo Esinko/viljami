@@ -1,0 +1,1 @@
+let updater = nw.Window.open('updater.html', {})

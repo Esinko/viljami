@@ -1,0 +1,25 @@
+{
+    "name": "viljami",
+    "version": "0.0.1",
+    "description": "Custom wilma client",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Esinko.net",
+    "license": "Apache 2.0 - See License",
+    "window": {
+        "icon": "./lib/assets/logo.png",
+        "height": 410,
+        "resizable": false,
+        "width": 310,
+        "title": "Viljami - Updater"
+    },
+    "developer": {
+        "showDevToolsOnStartup": true
+    },
+    "dependencies": {
+        "express": "^4.17.1",
+        "puppeteer": "^4.0.1"
+    }
+}

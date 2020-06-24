@@ -1,0 +1,320 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="./lib/assets/fonts.css">
+    <link rel="stylesheet" type="text/css" href="./lib/assets/animation.css">
+    <meta charset="utf-8"/>
+    <style>
+        * {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body style="margin: 0px; border: 0px; padding: 0px;">
+    <div id="body">
+        <div id="slider"></div>
+        <img id="logo" src="./lib/assets/logo.png">
+        <h1 id="text">Checking for updates...</h1>
+        <div id="loader"></div>
+    </div>
+</body>
+<script>
+    //Apply css
+        const _css = require("./bin/convertTheme.js")
+        let documentCss = new _css("../settings/theme.json", "updater")
+        documentCss.apply()
+</script>
+<script>
+console.log("Running...")
+require('nw.gui').Window.get().showDevTools();
+//Development
+
+const version = "0.0.1"
+
+/* 1st level binaries */
+const http = require("http")
+const url = require("url")
+const fs = require("fs")
+const util = require("util")
+const unzip = require("./lib/packages/unzip.js")
+
+/* Classes */
+const request = new (class Request {
+    /**
+     * Perform a simple http get request
+     * @param {""} path 
+     * @param {{}} options 
+     * @returns {Promise} 
+     */
+    async get(path, options) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                console.log("runs")
+                let _url = url.parse(path)
+                let setup = {
+                    host: _url.host,
+                    path: _url.path,
+                    port: _url.port,
+                    method: "GET",
+                    query: _url.query,
+                    body: options.body
+                };
+                console.log(setup)
+                let req = http.request(setup, async res => {
+                    console.log("res")
+                    let bodyBuffer = []
+                    res.on('data', async chunk => {
+                        bodyBuffer.push(chunk);
+                    }).on('end', async () => {
+                        console.log("ended")
+                        let body = Buffer.concat(bodyBuffer);
+                        resolve({
+                            body: body,
+                            headers: JSON.stringify(res.headers),
+                            status: res.statusCode,
+                            message: res.statusMessage
+                        })
+                    })
+                })
+                req.on("error", async error => {
+                    reject(error)
+                })
+                req.end()
+            }
+            catch (error) {
+                reject(error)
+            }
+        })
+    }
+    async post(path, options) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                let _url = url.parse(path)
+                let setup = {
+                    host: _url.host,
+                    path: _url.path,
+                    port: _url.port,
+                    method: "POST",
+                    query: _url.query,
+                    options
+                };
+                http.request(setup, async res => {
+                    let bodyBuffer = []
+                    res.on('data', async chunk => {
+                        bodyBuffer.push(chunk);
+                    }).on('end', async () => {
+                        let body = Buffer.concat(bodyBuffer);
+                        resolve({
+                            body: body,
+                            headers: JSON.stringify(res.headers),
+                            status: res.statusCode,
+                            message: res.statusMessage
+                        })
+                    })
+                }).on("error", async error => {
+                    reject(error)
+                });
+            }
+            catch (error) {
+                reject(error)
+            }
+        })
+    }
+})
+const updater = new (class Updater {
+    constructor(version) {
+        this.version = version
+    }
+    /**
+     * Download binaries
+     */
+    async _download(){
+        return new Promise(async (resolve, reject) => {
+            try {
+                let options = {
+                    hostname: "esinko.net", 
+                    path: '/downloads/viljami/application.zip',
+                    method: 'GET'
+                };
+                if(fs.existsSync("./temp")){
+                    async function del(path2){
+                        if(path2 == undefined) path2 = "./temp"
+                        fs.readdirSync(path2).forEach((file, index) => {
+                            const curPath = path.join(path2, file);
+                            if (fs.lstatSync(curPath).isDirectory()) {
+                            del(curPath);
+                            } else {
+                            fs.unlinkSync(curPath);
+                            }
+                        });
+                        fs.rmdirSync(path2);
+                    }
+                    await del()
+                }
+                await fs.mkdirSync("./temp")
+                await fs.mkdirSync("./temp/application/")
+                let temp = fs.createWriteStream("./temp/application.zip")
+                let req = await http.request(options, async res => {
+                    res.pipe(temp)
+                });
+                await req.end();
+                req.on('error', async e => {
+                    console.log("[UPDATER]: " + e + "\nStack: " + e.stack)
+                });
+                temp.on("close", async () => {
+                    let unzipper = fs.createReadStream("./temp/application.zip")
+                    let parser = unzipper.pipe(unzip.Extract({
+                        path: "./temp/application/"
+                    }))
+                    parser.on('entry', entry => entry.autodrain())
+                    .promise()
+                    .then(async () => {
+                        await fs.unlinkSync("./bin/temp.zip")
+                        resolve()
+                    }, e => {
+                        throw new Error(e)
+                    }) 
+                })
+            }
+            catch(err){
+                reject(err)
+            }
+        })
+    }
+
+    /**
+     * Replace / create new / old application files
+     */
+    async _push(){
+        return new Promise(async (resolve, reject) => {
+            //Redo this later! This is bad coding!!!
+            try {
+                let path = require("path")
+                let copied = 0
+                let expected = await function(dirPath, arrayOfFiles) {
+                    let files = fs.readdirSync(dirPath)
+                    arrayOfFiles = arrayOfFiles || []
+                    files.forEach(function(file) {
+                    if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+                        arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+                    } else {
+                        arrayOfFiles.push(file)
+                    }
+                    })
+                    return arrayOfFiles
+                }
+                async function copy(src, dest) {
+                    let exists = fs.existsSync(src);
+                    let stats = exists && fs.lstatSync(src);
+                    let isDirectory = exists && stats.isDirectory();
+                    if (isDirectory) {
+                        if(!exists) fs.mkdirSync(dest);
+                        fs.readdirSync(src).forEach(async function(childItemName) {
+                            copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName))
+                        })
+                    } else {
+                        ++copied
+                        fs.copyFileSync(src, dest);
+                    }
+                };
+                await copy("./temp/application/", "./")
+                let waiting = setInterval(async () => {
+                    if(copied == expected){
+                        clearInterval(waiting)
+                        resolve()
+                    }
+                }, 100)
+            }
+            catch(err){
+                reject(err)
+            }
+        })
+    }
+
+    /**
+     * Main updater function. Here you check what the state of the application is to see what to do about missing or outdated libraries
+     */
+    async main() {
+        request.get("http://esinko.net/download/viljami/version.txt", {}).then(async res => {
+            if(res.status === 200){
+                if(res.body.toString() == version){
+                    //We have the same version, with errors
+                    console.log("[UPDATER]: No updates required. Downloading missing application files.")
+                    this._download().then(async () => {
+                        this._push().then(async () => {
+                            console.log("[UPDATER]: Updated application.")
+                        }).catch(async err => {
+                            console.log("[UPDATER]: Error replacing/writing application files: " + err.message + "\nStack: " + err.stack)
+                        })
+                    }).catch(async err => {
+                        console.log("[UPDATER]: Error while downloading application archive: " + err.message + "\nStack: " + err.stack)
+                    })
+                }else {
+                    //New version available
+                }
+            }else {
+
+            }
+        }).catch(async error => {
+            console.log("[UPDATER]: " + error + "\nStack: " + error.stack)
+        })
+    }
+})(version)
+
+/* Memory */
+const _memory = {
+    flags: {
+        loadError: false,
+        loadAt: null
+    }
+}
+/* 2nd level binaries */
+const bin = {
+    server: "./bin/server.js",
+    config: "./settings/config",
+}
+try {
+    Object.keys(bin).forEach(async path => {
+        try {
+            loadAt = path
+            bin[path] = require(bin[path])
+        }
+        catch(err){
+            throw err;
+        }
+    })
+}
+catch (err) {
+    _memory.flags.loadError = true
+    console.log("[MAIN]: Failed to load binary: " + _memory.flags.loadAt)
+}
+finally {
+    if (_memory.flags.loadError) {
+        console.log("[MAIN]: Missing some library, downloading package.")
+        updater.main()
+    } else {
+        //All good continue to launch
+        console.log("Loading complete, Checking version...")
+        request.get("http://esinko.net/downloads/viljami/version.txt", {}).then(async res => {
+            if(res.status === 200){
+                if(res.body.toString() == version.toString()){
+                    document.getElementById("text").innerHTML = "Up to date! Starting..."
+                    //Start the app here
+                    console.log("Updater is done")
+                    setTimeout(async => {
+                        window.location.href = "./bin/app.html"
+                    }, 2000)
+                }else {
+                    document.getElementById("text").innerHTML = "Update required<br>Updating..."
+                }
+            }else {
+                document.getElementById("text").innerHTML = "Failed to fetch updates"
+                document.getElementById("text").style.color = "Red"
+                document.getElementById("loader").style.visibility = "hidden"
+            }
+        }).catch(async err => {
+            document.getElementById("text").innerHTML = "Failed to fetch updates"
+            document.getElementById("text").style.color = "Red"
+            document.getElementById("loader").style.visibility = "hidden"
+        })
+    }
+}
+</script>
