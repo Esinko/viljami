@@ -9,4 +9,4 @@ Tämä sovellus on julkista lähdekoodia ja on rakennettu Google Chromiumin ja N
 Tämä sovellus ei myöskään käsittele käyttäjätietoja lainkaan.
 
 # Notice
-Application still in development. Development features are enabled and teh application is overall not even close to the final version!!!
+Application still in development. Development features are enabled and the application is overall not even close to the final version!!!
