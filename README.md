@@ -12,7 +12,7 @@ Tämä sovellus ei myöskään käsittele käyttäjätietoja lainkaan.
 Application still in development. Development features are enabled and the application is overall not even close to the final version!!!
 
 # TODO
-~~Login pipeline~~
+~~Login pipeline~~ / 
 ~~optimize http and https request classes~~
 - Remove develpment notes from login pipline and restructure file tree (WIP: 50%)
 - Themes v2 (WIP: 90%)
