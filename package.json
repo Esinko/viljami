@@ -9,7 +9,7 @@
     "author": "Esinko.net",
     "license": "Apache 2.0 - See License",
     "window": {
-        "icon": "./lib/assets/logo.png",
+        "icon": "./lib/local_assets/logo.png",
         "height": 410,
         "resizable": false,
         "width": 310,

@@ -1,1 +1,1 @@
-let updater = nw.Window.open('updater.html', {})
+let application = nw.Window.open('./bin/updater.html', {})
