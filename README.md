@@ -13,7 +13,7 @@ Application still in development. Development features are enabled and the appli
 
 # TODO
 - Login pipeline
-- Remove develpment notes from login pipline
+- Remove develpment notes from login pipline and restructure file tree
 - Themes v2
 - optimize http and https request classes
 - app view
