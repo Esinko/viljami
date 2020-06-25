@@ -1,78 +1,40 @@
 <head>
     <link rel="stylesheet" type="text/css" href="../lib/local_assets/fonts.css">
     <link rel="stylesheet" type="text/css" href="../lib/local_assets/animation.css">
+    <link rel="stylesheet" type="text/css" href="../lib/local_assets/general.css">
     <meta charset="utf-8" />
-    <style>
-        * {
-            overflow-x: hidden;
-            overflow-y: hidden;
-        }
-    </style>
 </head>
 
 <body style="margin: 0px; border: 0px; padding: 0px;">
-    <div id="overflow">
-        <div id="body">
-            <div id="login">
-                <h1 id="loginHeader">Viljami</h1>
-                <h2 id="loginHeaderSmall">Customoitava ja paranneltu wilma-sovellus</h2>
-                <p id="desc">Kirjoita Wilma-palvelimesi osoite alle ja paina kirjaudu</p>
-                <input id="wilmaPath" type="text" placeholder="https://*.inschool.fi, https://*.wilma.fi">
-                <p id="agreenment"><input id="agree" type="checkbox">Olen lukenut Viljamin <a href="#"
-                        id="license">käyttöehdot</a></p>
-                <button id="loginButton">Kirjaudu</button>
-                <p id="error"></p>
-                <a id="info" href="#">Miten Viljami toimii? Onko Viljami turvallinen? Käsitteleekö Viljami
-                    salasanaani?</a>
-            </div>
-            <div id="app" style="visibility: hidden;">
-                <div id="header">
-                    <div id="headerPosLeft">
-                        <img src="../settings/themes/%theme%/logo.png" id="logo">
-                        <h1 id="headerText">Viljami</h1>
-                    </div>
-                    <div id="headerPosRight">
-                        <button id="settings"><img src="../settings/themes/%theme%/settings.png" id="settingsImage"></button>
-                        <button id="logout"><img src="../settings/themes/%theme%/logout.png" id="logoutImage"></button>
-                    </div>
-                    <div id="headerPosBottom">
-                        nav here
-                    </div>
-                    <div id="front">
-                        <div id="frontNotifications"></div>
-                        <div id="frontStats"></div>
-                        <div id="infos"></div>
-                        <div id="schedule"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div id="body">
+        <div id="slider"></div>
+        <img id="logo" src="../lib/local_assets/logo.png">
+        <h1 id="text">Checking for updates...</h1>
+        <div id="loader"></div>
     </div>
 </body>
 <script>
-</script>
-<script>
+    //Log the application name to console
+    console.log("[MAIN]: Loaded application: Updater")
+
+    //Development
+    require('nw.gui').Window.get().showDevTools();
+
+    //Version
+    const version = "0.0.1"
+
     /* 1st level binaries */
-    const url = require("url")
     const http = require("http")
-    const https = require("https")
-    const puppeteer = require("puppeteer")
-    const _css = require("../bin/convertTheme.js")
+    const url = require("url")
+    const fs = require("fs")
+    const util = require("util")
+    const unzip = require("../lib/packages/unzip.js")
+    const _css = require("./convertTheme.js")
     const config = require("../settings/config.json")
 
-    /* Css / general */
-    const version = "0.0.1"
-    //Apply css
-    const _css2 = require("./convertTheme.js")
-    let documentCss2 = new _css2("../settings/themes/" + config.theme + "/theme.json", "login", version)
-    documentCss2.apply()
-
-    //Register images
-    const images = ["logo", "settingsImage", "logoutImage"]
-    images.forEach(async elem => {
-        elem = document.getElementById(elem)
-        elem.src = elem.src.replace("%theme%", config.theme)
-    })
+    /* Css */
+    let documentCss = new _css("../settings/themes/" + config.theme + "/theme.json", "updater", version)
+    documentCss.apply()
 
     /* Classes */
     const request = new (class Request {
@@ -339,149 +301,219 @@
             })
         }
     })
-    const loginFunction = async function (path) {
-        return new Promise(async (resolve, reject) => {
-            puppeteer.launch({ headless: false, args: ['--app=' + path, '--disable-infobars', '--enable-automation', '--window-size=410,510'], defaultViewport: null }).then(browser => {
-                let cookies = null
-                browser.on("disconnected", async function (err) {
-                    if (cookies == null) {
-                        reject("Virhe avatessa kirjautumisikkunaa<br>tai kirjautuminen keskeytettiin")
+    const updater = new (class Updater {
+        constructor(version) {
+            this.version = version
+        }
+        /**
+         * Download binaries
+         */
+        async _download() {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    let options = {
+                        hostname: "esinko.net",
+                        path: '/downloads/viljami/application.zip',
+                        method: 'GET'
+                    };
+                    if (fs.existsSync("./temp")) {
+                        async function del(path2) {
+                            if (path2 == undefined) path2 = "./temp"
+                            fs.readdirSync(path2).forEach((file, index) => {
+                                const curPath = path.join(path2, file);
+                                if (fs.lstatSync(curPath).isDirectory()) {
+                                    del(curPath);
+                                } else {
+                                    fs.unlinkSync(curPath);
+                                }
+                            });
+                            fs.rmdirSync(path2);
+                        }
+                        await del()
                     }
-                })
-                //This triggers when we're done
-                browser.on("close", async () => {
-                    if (cookies == null) {
-                        reject("Kirjautuminen epäonnistui")
-                    }
-                })
-                //Load the page and edit it to fit the login window
-                browser.pages().then(pages => {
-                    let waited = 0
-                    let timeout = setInterval(async function () {
-                        if (waited * 10 == "30") {
-                            browser.close()
-                        }
-                    }, 100)
-                    let first = false
-                    pages[0].setViewport({ width: 410, height: 510 }).then(() => {
-                        pages[0].on("domcontentloaded", async () => {
-                            if (first) {
-                                cookies = await pages[0].cookies()
-                                console.log("Nav trigger")
-                                resolve(cookies)
-                                browser.close()
-                            } else {
-                                first = true
-                                pages[0].click("#approve-cookies").then(() => {
-                                    pages[0].evaluate(page => {
-                                        let toEdit = document.getElementsByClassName("col-md-pull-4")[0]
-                                        toEdit.remove()
-                                        let items = document.getElementsByTagName("a")
-                                        for (let i = 0; items.length - 1 > i; i++) {
-                                            if (items[i].children[0] != undefined && items[i].children[0].className == "Mobile") {
-                                                items[i].remove()
-                                            }
-                                        }
-                                    }).then(() => {
-                                        console.log("Page loaded")
-                                    })
-                                })
-                            }
-                        })
-                    })
-                })
-            })
-        })
-    }
-
-    /* Code */
-    //Edit the window configuration
-    let me = require('nw.gui').Window.get()
-    me.resizeTo(900, 600)
-    me.title = "Viljami - Kirjautuminen"
-    me.setResizable(true)
-
-    //Start the server
-    const _server = require("./server.js")
-
-    //Login related
-    let login = document.getElementById("loginButton")
-    let read = document.getElementById("agree")
-    let agreed = false
-    let input = document.getElementById("wilmaPath")
-    login.onclick = async function () {
-        document.getElementById("error").innerHTML = ""
-        if (agreed) {
-            if (/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(input.value)) {
-                if (input.value.startsWith("http://")) {
-                    request.get(input.value, {https: false}).then(async res => {
-                        if (res.status.toString() == 200) {
-                            loginFunction(input.value).then(async cookies => {
-                                document.getElementById("error").style.color = "Green"
-                                document.getElementById("error").innerHTML = "Ladataan..."
-                                console.log(cookies)
-                                documentCss2.reset().then(async () => {
-                                    console.log("Reset view")
-                                    documentCss2 = new _css2("../settings/themes/" + config.theme + "/theme.json", "app", version)
-                                    documentCss2.apply()
-                                    //App view created
-                                }).catch(async (err) => {
-                                    documentCss2.apply()
-                                    document.getElementById("error").style.color = "Red"
-                                    document.getElementById("error").innerHTML = "Virhe avatessa sovellusnäkymää\n" + err
-                                })
-                            }).catch(async errorMessage => {
-                                document.getElementById("error").innerHTML = errorMessage
+                    await fs.mkdirSync("./temp")
+                    await fs.mkdirSync("./temp/application/")
+                    let temp = fs.createWriteStream("./temp/application.zip")
+                    let req = await http.request(options, async res => {
+                        res.pipe(temp)
+                    });
+                    await req.end();
+                    req.on('error', async e => {
+                        console.log("[UPDATER]: " + e + "\nStack: " + e.stack)
+                    });
+                    temp.on("close", async () => {
+                        let unzipper = fs.createReadStream("./temp/application.zip")
+                        let parser = unzipper.pipe(unzip.Extract({
+                            path: "./temp/application/"
+                        }))
+                        parser.on('entry', entry => entry.autodrain())
+                            .promise()
+                            .then(async () => {
+                                await fs.unlinkSync("./bin/temp.zip")
+                                resolve()
+                            }, e => {
+                                throw new Error(e)
                             })
-                        } else {
-                            document.getElementById("error").innerHTML = "Palvelin ei ole olemassa tai ei vastaa"
-                        }
-                    }).catch(async err => {
-                        console.log(err)
-                        document.getElementById("error").innerHTML = "Palvelimeen yhdistäminen ei onnistu"
-                    })
-                } else {
-                    request.get(input.value, {https: true}).then(async res => {
-                        if (res.status.toString() == 200) {
-                            loginFunction(input.value).then(async cookies => {
-                                document.getElementById("error").style.color = "Green"
-                                document.getElementById("error").innerHTML = "Ladataan..."
-                                console.log(cookies)
-                                documentCss2.reset().then(async () => {
-                                    console.log("Reset view")
-                                    documentCss2 = new _css2("../settings/themes/" + config.theme + "/theme.json", "app", version)
-                                    documentCss2.apply()
-                                    //App view created
-                                }).catch(async (err) => {
-                                    documentCss2.apply()
-                                    document.getElementById("error").style.color = "Red"
-                                    document.getElementById("error").innerHTML = "Virhe avatessa sovellusnäkymää\n" + err
-                                })
-                            }).catch(async errorMessage => {
-                                document.getElementById("error").innerHTML = errorMessage
-                            })
-                        } else {
-                            document.getElementById("error").innerHTML = "Palvelin ei ole olemassa tai ei vastaa"
-                        }
-                    }).catch(async err => {
-                        console.log(err)
-                        document.getElementById("error").innerHTML = "Palvelimeen yhdistäminen ei onnistu"
                     })
                 }
-            } else {
-                document.getElementById("error").innerHTML = "Palvelinosoite on virheellinen"
-            }
-        } else {
-            document.getElementById("error").innerHTML = "Sinun täytyy hyväksyä lisenssiehdot"
+                catch (err) {
+                    reject(err)
+                }
+            })
         }
-    }
-    read.onclick = async function () {
-        if (agreed) {
-            agreed = false
-        } else {
-            agreed = true
-        }
-    }
 
-    //App view
+        /**
+         * Replace / create new / old application files
+         */
+        async _push() {
+            return new Promise(async (resolve, reject) => {
+                //Redo this later! This is bad coding!!!
+                try {
+                    let path = require("path")
+                    let copied = 0
+                    let expected = await function (dirPath, arrayOfFiles) {
+                        let files = fs.readdirSync(dirPath)
+                        arrayOfFiles = arrayOfFiles || []
+                        files.forEach(function (file) {
+                            if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+                                arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+                            } else {
+                                arrayOfFiles.push(file)
+                            }
+                        })
+                        return arrayOfFiles
+                    }
+                    async function copy(src, dest) {
+                        let exists = fs.existsSync(src);
+                        let stats = exists && fs.lstatSync(src);
+                        let isDirectory = exists && stats.isDirectory();
+                        if (isDirectory) {
+                            if (!exists) fs.mkdirSync(dest);
+                            fs.readdirSync(src).forEach(async function (childItemName) {
+                                copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName))
+                            })
+                        } else {
+                            ++copied
+                            fs.copyFileSync(src, dest);
+                        }
+                    };
+                    await copy("./temp/application/", "./")
+                    let waiting = setInterval(async () => {
+                        if (copied == expected) {
+                            clearInterval(waiting)
+                            resolve()
+                        }
+                    }, 100)
+                }
+                catch (err) {
+                    reject(err)
+                }
+            })
+        }
+
+        /**
+         * Main updater function. Here you check what the state of the application is to see what to do about missing or outdated libraries
+         */
+        async main() {
+            request.get("http://esinko.net/download/viljami/version.txt", {}).then(async res => {
+                if (res.status === 200) {
+                    if (res.body.toString() == version) {
+                        //We have the same version, with errors
+                        console.log("[UPDATER]: No updates required. Downloading missing application files.")
+                        this._download().then(async () => {
+                            this._push().then(async () => {
+                                console.log("[UPDATER]: Updated application.")
+                                document.getElementById("text").innerHTML = "Updated, restarting"
+                                window.location.reload() //This good enough?
+                            }).catch(async err => {
+                                console.log("[UPDATER]: Error replacing/writing application files: " + err.message + "\nStack: " + err.stack)
+                            })
+                        }).catch(async err => {
+                            console.log("[UPDATER]: Error while downloading application archive: " + err.message + "\nStack: " + err.stack)
+                        })
+                    } else {
+                        //New version available
+                        console.log("[UPDATER]: New version available")
+                    }
+                } else {
+
+                }
+            }).catch(async error => {
+                console.log("[UPDATER]: " + error + "\nStack: " + error.stack)
+            })
+        }
+    })(version)
+
+    /* Memory */
+    const _memory = {
+        flags: {
+            loadError: false,
+            loadAt: null
+        }
+    }
+    /* 2nd level binaries */
+    const bin = {
+        config: "./settings/config.json",
+        themes: "./convertTheme.js",
+        app: "./bin/app.html",
+        server: "./bin/server.js.ignore"
+    }
+    try {
+        Object.keys(bin).forEach(async path => {
+            try {
+                loadAt = path
+                if (bin[path].endsWith(".js")) {
+                    bin[path] = require(bin[path])
+                } else {
+                    bin[path] = bin[path].replace(".ignore", "")
+                    console.log(bin[path])
+                    console.log(__dirname)
+                    if (fs.existsSync(bin[path])) {
+                        bin[path] = "verified"
+                    } else {
+                        throw new Error("Missing " + bin[path])
+                    }
+                }
+            }
+            catch (err) {
+                throw err;
+            }
+        })
+    }
+    catch (err) {
+        _memory.flags.loadError = true
+        console.log("[MAIN]: Failed to load binary: " + _memory.flags.loadAt)
+    }
+    finally {
+        if (_memory.flags.loadError) {
+            console.log("[MAIN]: Missing some library, downloading package.")
+            updater.main()
+        } else {
+            //All good continue to launch
+            console.log("Loading complete, Checking version...")
+            request.get("http://esinko.net/downloads/viljami/version.txt", {}).then(async res => {
+                if (res.status === 200) {
+                    if (res.body.toString() == version.toString()) {
+                        document.getElementById("text").innerHTML = "Up to date! Starting..."
+                        //Start the app here
+                        console.log("[MAIN]: Updater is done")
+                        setTimeout(async () => {
+                            window.location.href = "./app.html"
+                        }, 2000)
+                    } else {
+                        document.getElementById("text").innerHTML = "Update required<br>Updating..."
+                        updater.main()
+                    }
+                } else {
+                    document.getElementById("text").innerHTML = "Failed to fetch updates"
+                    document.getElementById("text").style.color = "Red"
+                    document.getElementById("loader").style.visibility = "hidden"
+                }
+            }).catch(async err => {
+                document.getElementById("text").innerHTML = "Failed to fetch updates"
+                document.getElementById("text").style.color = "Red"
+                document.getElementById("loader").style.visibility = "hidden"
+            })
+        }
+    }
 </script>
