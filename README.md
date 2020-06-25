@@ -19,7 +19,7 @@ Currently it is not possible to run this application. With this source code (ins
 ~~optimize http and https request classes~~
 - Remove develpment notes from login pipline and restructure file tree (WIP: 50%)
 - Themes v2 (WIP: 90%)
-- updates
+- updates /installation
 - app view
 - messages
 - schedule
