@@ -15,6 +15,7 @@ Application still in development. Development features are enabled and the appli
 - Login pipeline
 - Remove develpment notes from login pipline
 - Themes v2
+- optimize http and https request classes
 - app view
 - messages
 - schedule
