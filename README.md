@@ -12,7 +12,7 @@ Tämä sovellus ei myöskään käsittele käyttäjätietoja lainkaan.
 Application still in development. Development features are enabled and the application is overall not even close to the final version!!!
 
 # Using this test version of Viljami
-Currently it is not possible to run this application. With this source code (install process wip)
+Currently it is not possible to run this application with this source code (install process wip)
 
 # TODO
 ~~Login pipeline~~ / 
