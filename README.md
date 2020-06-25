@@ -10,3 +10,13 @@ Tämä sovellus ei myöskään käsittele käyttäjätietoja lainkaan.
 
 # Notice
 Application still in development. Development features are enabled and the application is overall not even close to the final version!!!
+
+# TODO
+- Login pipeline
+- Themes v2
+- app view
+- messages
+- schedule
+- tests
+- studies
+- etc.
