@@ -13,9 +13,9 @@ Application still in development. Development features are enabled and the appli
 
 # TODO
 ~~Login pipeline~~
+~~optimize http and https request classes~~
 - Remove develpment notes from login pipline and restructure file tree (WIP: 50%)
 - Themes v2 (WIP: 90%)
-~~optimize http and https request classes~~
 - app view
 - messages
 - schedule
