@@ -51,9 +51,16 @@ module.exports = class Theme {
             }
             Object.keys(theme.list[this.list].css).forEach(async id => {
                 let style = theme.list[this.list].css[id]
+                console.log(id)
                 Object.keys(style).forEach(async name => {
                     let value = style[name]
-                    document.getElementById(id).style[name] = value
+                    if(document.getElementById(id) == null){
+                        document.getElementsByName(id).forEach(async elem => {
+                            elem.style[name] = value
+                        })
+                    }else {
+                        document.getElementById(id).style[name] = value
+                    }
                 })
             })
         }

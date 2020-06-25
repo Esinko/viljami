@@ -7,10 +7,16 @@
             overflow-x: hidden;
             overflow-y: hidden;
         }
+        body {
+            margin: 0px;
+            border: 0px; 
+            padding: 0px;
+            z-index: 1;
+        }
     </style>
 </head>
 
-<body style="margin: 0px; border: 0px; padding: 0px;">
+<body>
     <div id="overflow">
         <div id="body">
             <div id="login">
@@ -36,14 +42,22 @@
                         <button id="logout"><img src="../settings/themes/%theme%/logout.png" id="logoutImage"></button>
                     </div>
                     <div id="headerPosBottom">
-                        nav here
+                        <ul id="nav">
+                            <li name="navElem"><button name="navElemLink">Viestit</button></li>
+                            <li name="navElem"><button name="navElemLink">Työjärjestys</button></li>
+                            <li name="navElem"><button name="navElemLink">Opinnot</button></li>
+                            <li name="navElem"><button name="navElemLink">Kokeet</button></li>
+                            <li name="navElem"><button name="navElemLink">Yleiset-DRP</button></li>
+                            <li name="navElem"><button name="navElemLink">wilma-asetukset</button></li>
+                        </ul>
                     </div>
-                    <div id="front">
-                        <div id="frontNotifications"></div>
-                        <div id="frontStats"></div>
-                        <div id="infos"></div>
-                        <div id="schedule"></div>
-                    </div>
+                    <div id="headerBottom"></div>
+                </div>
+                <div id="front" style="z-index: 2">
+                    <div id="frontNotifications"></div>
+                    <div id="schedule"></div>
+                    <div id="frontStats"></div>
+                    <div id="infos"></div>
                 </div>
             </div>
         </div>

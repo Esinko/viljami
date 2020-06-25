@@ -123,8 +123,168 @@
         },
         "app": {
             "css": {
+                "overflow": {
+                    "width": "100%",
+                    "height": "100%",
+                    "background": "#1d3b39",
+                    "minWidth": "601px"
+                },
                 "login": {
                     "visibility": "hidden"
+                },
+                "header": {
+                    "position": "fixed",
+                    "width": "100%",
+                    "height": "85px",
+                    "background": "rgb(245,245,245,0.85)",
+                    "top": "0px",
+                    "left": "0px",
+                    "text-align": "center"
+                },
+                "headerBottom": {
+                    "position": "absolute",
+                    "bottom": "0px",
+                    "width": "100%",
+                    "height": "3px",
+                    "background": "rgb(245,245,245,0.95)"
+                },
+                "front": {
+                    "position": "absolute",
+                    "width": "100%",
+                    "height": "calc(100% - 85px)",
+                    "top": "85px",
+                    "left": "0px"
+                },
+                "body": {
+                    "width": "100%",
+                    "height": "100%",
+                    "background": "url('../settings/themes/default/app_background.jpg') no-repeat",
+                    "textAlign": "center",
+                    "background-size": "100% auto"
+                },
+                "headerPosLeft": {
+                    "position": "absolute",
+                    "left": "10px",
+                    "height": "30px",
+                    "top": "10px",
+                    "width": "225%",
+                    "text-align": "center",
+                    "float": "left"
+                },
+                "headerPosRight": {
+                    "position": "absolute",
+                    "right": "10px",
+                    "height": "30px",
+                    "top": "10px",
+                    "width": "25%",
+                    "text-align": "center"
+                },
+                "headerPosBottom": {
+                    "position": "absolute",
+                    "left": "0px",
+                    "height": "30px",
+                    "top": "50px",
+                    "width": "100%",
+                    "text-align": "center"
+                },
+                "logo": {
+                    "height": "30px",
+                    "margin-top": "10px",
+                    "float": "left",
+                    "position": "absolute",
+                    "left": "0px",
+                    "margin": "0px"
+                },
+                "headerText": {
+                    "background": "rgb(255, 255, 255, 0.8)",
+                    "fontFamily": "RobotoMono",
+                    "fontSize": "24px",
+                    "float": "right",
+                    "position": "absolute",
+                    "top": "0px",
+                    "left": "27.34px",
+                    "margin": "0px"
+                },
+                "settings": {
+                    "width": "30px",
+                    "height": "30px",
+                    "position": "absolute",
+                    "right": "0px",
+                    "top": "0px",
+                    "padding": "0px"
+                },
+                "logout": {
+                    "width": "30px",
+                    "height": "30px",
+                    "position": "absolute",
+                    "right": "40px",
+                    "top": "0px",
+                    "padding": "0px"
+                },
+                "logoutImage": {
+                    "width": "26px",
+                    "height": "26px",
+                    "margin-top": "-1px"
+                },
+                "settingsImage": {
+                    "width": "30px",
+                    "height": "30px",
+                    "margin-top": "-2px",
+                    "margin-left": "-2px"
+                },
+                "nav": {
+                    "list-style-type": "none",
+                    "margin": "0px",
+                    "padding": "0px"
+                },
+                "navElem": {
+                    "float": "left",
+                    "margin-left": "5px"
+                },
+                "navElemLink": {
+                    "display": "block",
+                    "padding": "1px",
+                    "background": "white",
+                    "color": "black",
+                    "fontFamily": "RobotoMono",
+                    "fontSize": "18px",
+                    "text-decoration": "underline"
+                },
+                "frontNotifications": {
+                    "position": "absolute",
+                    "top": "25px",
+                    "width": "40%",
+                    "left": "2%",
+                    "height": "calc(calc(100% - 25px - 20px))",
+                    "background": "rgb(245,245,245,0.55)",
+                    "border": "3px solid rgb(245,245,245,0.85)"
+                },
+                "schedule": {
+                    "position": "absolute",
+                    "top": "25px",
+                    "width": "calc(100% - 45% - 2%)",
+                    "left": "45%",
+                    "height": "calc(40% - 25px - 20px)",
+                    "background": "rgb(245,245,245,0.55)",
+                    "border": "3px solid rgb(245,245,245,0.85)"
+                },
+                "frontStats": {
+                    "position": "absolute",
+                    "top": "calc(40% - 25px - 20px + 25px + 3%)",
+                    "width": "calc(100% - 45% - 2% - 30%)",
+                    "left": "45%",
+                    "height": "calc(100% - 40% - 15px)",
+                    "background": "rgb(245,245,245,0.55)",
+                    "border": "3px solid rgb(245,245,245,0.85)"
+                },
+                "infos": {
+                    "position": "absolute",
+                    "top": "calc(40% - 25px - 20px + 25px + 3%)",
+                    "width": "calc(100% - 45% - (100% - 45% - 2% - 30%) - 4%)",
+                    "left": "calc(45% + (100% - 45% - 2% - 30%) + 2%)",
+                    "height": "calc(100% - 40% - 15px)",
+                    "background": "rgb(245,245,245,0.55)",
+                    "border": "3px solid rgb(245,245,245,0.85)"
                 }
             },
             "customClass": []
