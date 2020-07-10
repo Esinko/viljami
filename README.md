@@ -1,3 +1,5 @@
+# Development note
+Development of this project will continue on 17th of july
 # Viljami
 
 Easily customisable client for the popular application Wilma. This application uses the original wilma backend and never stores your personal information.
