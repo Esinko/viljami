@@ -1,6 +1,6 @@
 # Development note
-Development of this project will continue on 17th of july
-# Viljami
+Development of this project will continue on 17th of july. The first alpha with basic functionalities is planned on 27th of july. More features additions and bug fixes will continue during next month with the first beta release some time after Alpha 2
+# Viljami.
 
 Easily customisable client for the popular application Wilma. This application uses the original wilma backend and never stores your personal information.
 This application is also open source and built on top of Google Chromium and NW.Js with Node.Js, Html5 and CSS.
