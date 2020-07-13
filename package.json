@@ -1,0 +1,21 @@
+{
+    "name": "Viljami",
+    "version": "0.0.1",
+    "description": "Custom wilma client",
+    "main": "./bin/script/startup.js",
+    "author": "Esinko.net",
+    "license": "Apache 2.0 - See License",
+    "dependencies": {
+        "express": "^4.17.1"
+    },
+    "window": {
+        "icon": "./configuration/themes/default/logo.png",
+        "height": 410,
+        "resizable": false,
+        "width": 310,
+        "title": "Viljami - Updater"
+    },
+    "developer": {
+        "showDevToolsOnStartup": true
+    }
+}
