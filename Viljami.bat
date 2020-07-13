@@ -1,1 +1,0 @@
-start ./lib/nw-dev/nw.exe . --mixed-context
