@@ -19,7 +19,8 @@
                     "color": "white",
                     "font-family": "RobotoMono",
                     "width": "100%",
-                    "font-size": "20px"
+                    "font-size": "20px",
+                    "background": "grey"
                 },
                 "loader": {
                     "border": "16px solid #f3f3f3",
@@ -257,7 +258,8 @@
                     "left": "2%",
                     "height": "calc(calc(100% - 25px - 20px))",
                     "background": "rgb(245,245,245,0.55)",
-                    "border": "3px solid rgb(245,245,245,0.85)"
+                    "border": "3px solid rgb(245,245,245,0.85)",
+                    "overflowY": "scroll"
                 },
                 "schedule": {
                     "position": "absolute",
@@ -288,7 +290,7 @@
                     "overflow-y": "scroll"
                 },
                 "infoBar": {
-                    "position": "absolute",
+                    "position": "sticky",
                     "width": "100%",
                     "height": "26px",
                     "background": "white",
@@ -296,12 +298,75 @@
                     "fontFamily": "RobotoMono",
                     "fontSize": "20px",
                     "top": "0px",
-                    "margin-top": "0px"
+                    "margin-top": "0px",
+                    "zIndex": "6"
 
                 },
                 "infoList": {
-                    "margin-left": "5px",
-                    "padding-left": "0px"
+                    "marginTop": "25px",
+                    "paddingLeft": "0px"
+                },
+                "item": {
+                    "marginLeft": "3px",
+                    "marginTop": "10px",
+                    "width": "calc(100% - 6px)",
+                    "min-height": "70px",
+                    "height": "auto",
+                    "border": "2px solid grey",
+                    "borderRadius": "3px",
+                    "background": "rgb(245,245,245,0.85)"
+                },
+                "itemTextTopLeft": {
+                    "height": "20px",
+                    "fontFamily": "RobotoMono",
+                    "fontSize": "15px",
+                    "min-width": "20%",
+                    "zIndex": "3",
+                    "left": "3px",
+                    "top": "3px",
+                    "position": "absolute",
+                    "margin": "0px",
+                    "borderBottom": "2px solid grey"
+                },
+                "itemTextMain": {
+                    "zIndex": "4",
+                    "width": "100%",
+                    "marginTop": "25px",
+                    "float": "left",
+                    "fontSize": "15px",
+                    "fontFamily": "RobotoMono"
+                },
+                "itemParent": {
+                    "width": "calc(100% - 6px)",
+                    "position": "relative"
+                },
+                "itemTextTopMiddle": {
+                    "height": "20px",
+                    "fontFamily": "RobotoMono",
+                    "fontSize": "15px",
+                    "min-width": "45px",
+                    "zIndex": "3",
+                    "left": "calc(50% - 22.5px)",
+                    "top": "3px",
+                    "position": "absolute",
+                    "margin": "0px",
+                    "borderBottom": "2px solid grey"
+                },
+                "itemTextTopRight": {
+                    "height": "20px",
+                    "fontFamily": "RobotoMono",
+                    "fontSize": "15px",
+                    "min-width": "45px",
+                    "zIndex": "3",
+                    "right": "3px",
+                    "top": "3px",
+                    "position": "absolute",
+                    "margin": "0px",
+                    "borderBottom": "2px solid grey"
+                },
+                "messageList": {
+                    "marginTop": "25px",
+                    "paddingLeft": "0px"
                 }
             },
             "customClass": []

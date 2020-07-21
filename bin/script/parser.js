@@ -1,3 +1,8 @@
+//MEMO
+//types:
+//1: opettaja
+//2: oppilas
+//3: henkilökunta
 module.exports = new (class Parser {
     async infos(data){
         return new Promise(async (resolve, reject) => {
@@ -43,5 +48,57 @@ module.exports = new (class Parser {
     }
     async schedule(data){
         
+    }
+    async messages(data){
+        return new Promise(async (resolve, reject) => {
+            try {
+                data = JSON.parse(data)
+                if(data.Status == "200"){
+                    if(data.Messages != undefined){
+                        let count = 0
+                        let construct = []
+                        data.Messages.forEach(async message => {
+                            let others = []
+                            let count2 = 0
+                            message.Senders.forEach(async sender => {
+                                if(sender.Name != message.Sender){
+                                    others.push({
+                                        id: sender.Href.split("\/")[2],
+                                        name: sender.Name
+                                    })
+                                }
+                                ++count2
+                                if(count2 == message.Senders.length){
+                                    construct.push({
+                                        id: message.Id,
+                                        title: message.Subject,
+                                        timestamp: message.TimeStamp.split("-")[2].split(" ")[0] + "." + message.TimeStamp.split("-")[1] + " " + message.TimeStamp.split(" ")[1],
+                                        category: message.Folder,
+                                        sender: {
+                                            id: message.SenderId, // statement ? true : false
+                                            //Note: The message sendertype conversion is just a guess and may be invalid!!!
+                                            type: message.SenderType === 0 ? "Huoltaja" : (message.SenderType === 1 ? "Opettaja" : (message.SenderType === 2 ? "Oppilas" : (message.SenderType === 3 ? "Henkilökunta" : "Tuntematon"))),
+                                            name: message.Sender,
+                                            others: others
+                                        }
+                                    })
+                                    ++count
+                                }
+                            })
+                            if(count == data.Messages.length){
+                                resolve(construct)
+                            }
+                        })
+                    }else {
+                        resolve([])
+                    }
+                }else {
+                    reject("Unexpected status code: " + data.Status)
+                }
+            }
+            catch(err){
+                reject(err)
+            }
+        })
     }
 })

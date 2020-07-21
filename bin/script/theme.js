@@ -69,6 +69,64 @@ module.exports = class Theme {
             this.console.log("[THEME]: " + err + "\nStack: " + err.stack)
         }
     }
+    /**
+     * 
+     * @param {Array|String} id 
+     */
+    async applySingle(id){
+        return new Promise(async (resolve, reject) => {
+            try {
+                this._import()
+                let theme = require(this.path)
+                if(theme.version != this.version){
+                    throw new Error("Outdated theme file")
+                }
+                if(typeof id == "string"){
+                    if(theme.list[this.list].css[id] != undefined){
+                        let style = theme.list[this.list].css[id]
+                        Object.keys(style).forEach(async name => {
+                            let value = style[name]
+                            if(this.document.getElementById(id) == null){
+                                this.document.getElementsByName(id).forEach(async elem => {
+                                    elem.style[name] = value
+                                })
+                            }else {
+                                this.document.getElementById(id).style[name] = value
+                            }
+                        })
+                    }else {
+                        reject("No such class exists.")
+                    }
+                }else {
+                    let count = 0
+                    id.forEach(async actualId => {
+                        if(theme.list[this.list].css[actualId] != undefined){
+                            let style = theme.list[this.list].css[actualId]
+                            Object.keys(style).forEach(async name => {
+                                let value = style[name]
+                                if(this.document.getElementById(actualId) == null){
+                                    this.document.getElementsByName(actualId).forEach(async elem => {
+                                        elem.style[name] = value
+                                    })
+                                }else {
+                                    this.document.getElementById(actualId).style[name] = value
+                                }
+                            })
+                            ++count
+                            if(count == id.length){
+                                resolve()
+                            }
+                        }else {
+                            reject("No such class exists.")
+                        }
+                    })  
+                }
+            }
+            catch(err){
+                reject(err)
+            }
+        })
+    }
     async reset(){
         return new Promise(async (resolve, reject) => {
             try {

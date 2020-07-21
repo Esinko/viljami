@@ -13,7 +13,7 @@
                 <h2 id="loginHeaderSmall">Customoitava ja paranneltu wilma-sovellus</h2>
                 <p id="desc">Kirjoita Wilma-palvelimesi osoite alle ja paina kirjaudu</p>
                 <input id="wilmaPath" type="text" placeholder="https://*.inschool.fi, https://*.wilma.fi">
-                <p id="agreenment"><input id="agree" type="checkbox">Olen lukenut Viljamin <a href="#"
+                <p id="agreenment"><input id="agree" type="checkbox">Olen lukenut ja hyväksyn Viljamin <a href="#"
                         id="license">käyttöehdot</a></p>
                 <button id="loginButton">Kirjaudu</button>
                 <p id="error"></p>
@@ -23,12 +23,12 @@
             <div id="app" style="visibility: hidden;">
                 <div id="header">
                     <div id="headerPosLeft">
-                        <img src="../settings/themes/%theme%/logo.png" id="logo">
+                        <img src="../../configuration/themes/%theme%/logo.png" id="logo">
                         <h1 id="headerText">Viljami</h1>
                     </div>
                     <div id="headerPosRight">
-                        <button id="settings"><img src="../settings/themes/%theme%/settings.png" id="settingsImage"></button>
-                        <button id="logout"><img src="../settings/themes/%theme%/logout.png" id="logoutImage"></button>
+                        <button id="settings"><img src="../../configuration/themes/%theme%/settings.png" id="settingsImage"></button>
+                        <button id="logout"><img src="../../configuration/themes/%theme%/logout.png" id="logoutImage"></button>
                     </div>
                     <div id="headerPosBottom">
                         <ul id="nav">
@@ -44,7 +44,8 @@
                 </div>
                 <div id="front" style="z-index: 2">
                     <div id="frontNotifications">
-                        <h1 name="infoBar">Ilmoitukset</h1>
+                        <h1 name="infoBar">Viestit</h1>
+                        <ul id="messageList"></ul>
                     </div>
                     <div id="schedule">
                         <h1 name="infoBar">Päivän työjärjestys</h1>

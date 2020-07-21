@@ -14,13 +14,14 @@ module.exports = new (class Request { // The request class, performs simple http
                 try {
                     let _url = url.parse(path)
                     let setup = {
-                        host: _url.host,
+                        host: _url.host.includes(":") ? _url.host.split(":")[0] : _url.host,
                         path: _url.path,
                         port: _url.port,
                         method: "GET",
                         query: _url.query,
                         body: options.body,
-                        followAllRedirects: true
+                        followAllRedirects: true,
+                        headers: options.headers
                     };
                     let redirectCount = 0
                     async function _https() {
@@ -39,7 +40,8 @@ module.exports = new (class Request { // The request class, performs simple http
                                         method: "GET",
                                         query: _url.query,
                                         body: options.body,
-                                        followAllRedirects: true
+                                        followAllRedirects: true,
+                                        headers: options.headers
                                     };
                                     ++redirectCount
                                     if(redirectCount == 10){
@@ -71,13 +73,14 @@ module.exports = new (class Request { // The request class, performs simple http
                 try {
                     let _url = url.parse(path)
                     let setup = {
-                        host: _url.host,
+                        host: _url.host.includes(":") ? _url.host.split(":")[0] : _url.host,
                         path: _url.path,
                         port: _url.port,
                         method: "GET",
                         query: _url.query,
                         body: options.body,
-                        followAllRedirects: true
+                        followAllRedirects: true,
+                        headers: options.headers
                     };
                     let redirectCount = 0
                     async function _http() {
@@ -96,7 +99,8 @@ module.exports = new (class Request { // The request class, performs simple http
                                         method: "GET",
                                         query: _url.query,
                                         body: options.body,
-                                        followAllRedirects: true
+                                        followAllRedirects: true,
+                                        headers: options.headers
                                     };
                                     ++redirectCount
                                     if(redirectCount == 10){
@@ -139,13 +143,14 @@ module.exports = new (class Request { // The request class, performs simple http
                 try {
                     let _url = url.parse(path)
                     let setup = {
-                        host: _url.host,
+                        host: _url.host.includes(":") ? _url.host.split(":")[0] : _url.host,
                         path: _url.path,
                         port: _url.port,
                         method: "POST",
                         query: _url.query,
                         body: options.body,
-                        followAllRedirects: true
+                        followAllRedirects: true,
+                        headers: options.headers
                     };
                     let redirectCount = 0
                     async function _https() {
@@ -164,7 +169,8 @@ module.exports = new (class Request { // The request class, performs simple http
                                         method: "GET",
                                         query: _url.query,
                                         body: options.body,
-                                        followAllRedirects: true
+                                        followAllRedirects: true,
+                                        headers: options.headers
                                     };
                                     ++redirectCount
                                     if(redirectCount == 10){
@@ -193,24 +199,29 @@ module.exports = new (class Request { // The request class, performs simple http
                     reject(error)
                 }
             }else {
+                global.console.log("using http")
                 try {
                     let _url = url.parse(path)
                     let setup = {
-                        host: _url.host,
+                        host: _url.host.includes(":") ? _url.host.split(":")[0] : _url.host,
                         path: _url.path,
                         port: _url.port,
                         method: "POST",
                         query: _url.query,
                         body: options.body,
-                        followAllRedirects: true
+                        followAllRedirects: true,
+                        headers: options.headers
                     };
+                    console.log("setup", setup)
                     let redirectCount = 0
                     async function _http() {
+                        global.console.log("function trigger")
                         let req = http.request(setup, async res => {
                             let bodyBuffer = []
                             res.on('data', async chunk => {
                                 bodyBuffer.push(chunk);
                             }).on('end', async () => {
+                                global.console.log("req ended", setup, res.statusCode)
                                 let body = Buffer.concat(bodyBuffer);
                                 if (res.statusCode == 301) {
                                     _url = url.parse(res.headers.location)
@@ -221,7 +232,8 @@ module.exports = new (class Request { // The request class, performs simple http
                                         method: "GET",
                                         query: _url.query,
                                         body: options.body,
-                                        followAllRedirects: true
+                                        followAllRedirects: true,
+                                        headers: options.headers
                                     };
                                     ++redirectCount
                                     if(redirectCount == 10){

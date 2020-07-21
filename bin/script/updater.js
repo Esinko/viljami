@@ -10,6 +10,7 @@ const unzip = require("../../lib/modules/unzip.js")
 const _css = require("../../bin/script/theme.js")
 const config = require("../../configuration/config.json")
 const request = require("../../bin/script/request.js")
+const session = require("../script/session.js")
 
 /* Css */
 let documentCss = new _css("../../configuration/themes/" + config.theme + "/theme.json", "updater", version, document, console)
@@ -22,6 +23,8 @@ setTimeout(async () => {
     animation.href = "../../cache/animations.css"
     document.getElementsByTagName("head")[0].append(animation)
 }, 100)
+/* Globals */
+global.interrupt = false
 
 /* Classes */
 const updater = new (class Updater {
@@ -166,26 +169,12 @@ const updater = new (class Updater {
         })
     }
 })(version)
-const session = new (class Session {
-    async create(){
-        return new Promise(async (resolve, reject) => {
-            try {
-                let randomisedSessionString = [...Array(256)].reduce(a=>a+"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#¤%&/()=?@£${[]}*.,-<>|"[~~(Math.random()*"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#¤%&/()=?@£${[]}*.,-<>|".length)],'')
-                fs.writeFile("./bin/session.txt", randomisedSessionString, async (err) => {
-                    if(err != null){
-                        console.log("ERR")
-                        reject(err)
-                    }else {
-                        console.log("WRITTEN")
-                        resolve()
-                    }
-                })
-            }
-            catch(err){
-                reject(err)
-            }
-        })
-    }
+const updaterSession = new session()
+updaterSession.create().then(async () => {
+    //Session created
+    console.log("[MAIN]: Session created")
+}).catch(async err => {
+    global.interrupt = err
 })
 
 try {
@@ -193,19 +182,13 @@ try {
         if (res.status === 200) {
             if (res.body.toString() == version.toString()) {
                 document.getElementById("text").innerHTML = "Up to date! Starting..."
-                //Create sessions
-                session.create().then(async () => {
-                    //Start the app here
-                    console.log("[MAIN]: Updater is done")
-                    setTimeout(async () => {
+                setTimeout(async () => {
+                    if(global.interrupt != false){
+                        document.getElementById("text").innerHTML = global.interrupt
+                    }else {
                         window.location.href = "./app.html"
-                    }, 2000)
-                }).catch(async err => {
-                    document.getElementById("text").innerHTML = "Cannot create<br>session."
-                    document.getElementById("text").style.background = "white"
-                    document.getElementById("text").style.color = "red"
-                    console.log(err)
-                })
+                    }
+                }, 2000)
             } else {
                 document.getElementById("text").innerHTML = "Update required<br>Updating..."
                 updater.main()
