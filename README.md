@@ -1,3 +1,5 @@
+THIS IS APPLICATION IS DEVELOPED BY A PRIVATE ENTITY AND NOT VISMA.
+I (Esinko) am not related to Visma in any way and this is a fully unoffical client for Wilma.
 # Development note
 The first beta should have been done 27th (07), but I need more time to ensure the quality of the written code and to as well fix the completely broken installation process. I'm sorry for this delay, but I'm just one guy.
 # Viljami.
