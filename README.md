@@ -21,12 +21,11 @@ Currently it is not possible to run this application with this source code (inst
 # TODO
 ~~Login pipeline~~ / 
 ~~optimize http and https request classes~~
-- Remove develpment notes from login pipline and restructure file tree (WIP: 50%)
+~~- Remove develpment notes from login pipline and restructure file tree (WIP: 50%)~~
 - Themes v2 (WIP: 90%)
 - updates /installation
-- app view
-- messages
+~~- app view~~
+~~- messages~~
 - schedule
-- tests
-- studies
+- view messages
 - etc.
